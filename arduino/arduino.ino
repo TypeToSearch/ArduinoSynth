@@ -13,15 +13,17 @@ uint64_t start_time=0;
 // Synth variables
 const int BUTTON = 13;
 const int BUZZER = A0;
-const int SAMPLES[16] = {127, 176, 217, 245, 255, 245, 217, 176, 127, 78, 37, 9, 0, 9, 37, 78};
+const int SAMPLES[16] = {255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0};
 int index = 0;
-int gate = 0;
+int gate = 1;
 
 // callback method used by timer
 void timer_callback(timer_callback_args_t __attribute((unused)) *p_args) {
-  analogWrite(BUZZER, SAMPLES[index]);
-  index++;
-  if (index == 16) {index = 0;}
+  if (gate == 0) {
+    analogWrite(BUZZER, SAMPLES[index]);
+    index++;
+    if (index == 16) {index = 0;}
+  }
 }
 
 bool beginTimer(float rate) {
@@ -59,11 +61,11 @@ void setup() {
 
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(BUZZER, OUTPUT);
-  pinMode(A5, INPUT);
 
-  beginTimer(3200);
+  beginTimer(6400);
 }
 
 void loop() {
+  gate = digitalRead(BUTTON);
   delay(100);
 }
