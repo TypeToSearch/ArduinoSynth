@@ -65,6 +65,5 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(analogRead(A5));
   delay(100);
 }
