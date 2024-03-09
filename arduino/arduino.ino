@@ -5,15 +5,23 @@ All other functions and code in this file were written by Ben Thomas for use in 
 
 #include "FspTimer.h"
 
+// Timer varaibles
 FspTimer audio_timer;
 uint64_t count=0;
 uint64_t start_time=0;
 
-const int SAMPLES[] = {};
+// Synth variables
+const int BUTTON = 13;
+const int BUZZER = A0;
+const int SAMPLES[16] = {127, 176, 217, 245, 255, 245, 217, 176, 127, 78, 37, 9, 0, 9, 37, 78};
+int index = 0;
+int gate = 0;
 
 // callback method used by timer
 void timer_callback(timer_callback_args_t __attribute((unused)) *p_args) {
-  count++;
+  analogWrite(BUZZER, SAMPLES[index]);
+  index++;
+  if (index == 16) {index = 0;}
 }
 
 bool beginTimer(float rate) {
@@ -48,15 +56,15 @@ bool beginTimer(float rate) {
 
 void setup() {
   Serial.begin(115200);
-  beginTimer(40000);
-  start_time = millis();
+
+  pinMode(BUTTON, INPUT_PULLUP);
+  pinMode(BUZZER, OUTPUT);
+  pinMode(A5, INPUT);
+
+  beginTimer(3200);
 }
 
 void loop() {
-  // calculate the effective frequency
-  int freq = 1000 * count / (millis()-start_time);
-  Serial.println(freq);
-  count = 0;
-  start_time = millis();
-  delay(1000);
+  Serial.println(analogRead(A5));
+  delay(100);
 }
