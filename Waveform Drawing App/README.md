@@ -1,0 +1,2 @@
+# Installation
+Use pipenv to install the dependencies for this project. If you use PyCharm to run this project, you must use the "venv" folder generated when opening the project in PyCharm to run pipenv install.
