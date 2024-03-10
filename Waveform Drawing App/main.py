@@ -1,8 +1,8 @@
-import kivy
 from kivy.app import App
 from kivy.app import Widget
 from kivy.graphics import *
 from kivy.properties import NumericProperty
+import math
 
 
 class SampleSlider(Widget):
@@ -13,24 +13,15 @@ class SampleSlider(Widget):
         self.tracks = []
         self.slides = []
 
-        self.bind(num_sliders=self.initialize_tracks)
+        self.bind(num_sliders=self.initialize_rects)
         self.bind(pos=self.update_rect, size=self.update_rect)
 
-    def initialize_tracks(self, *args):
-        self.tracks = []
+    def initialize_rects(self, *args):
         with self.canvas:
             Color(0.83, 0.83, 0.83)
-            for i in range(self.num_sliders):
-                size = (self.size[0] / self.num_sliders, self.size[1])
-                position = (self.pos[0] + (size[0] * i), self.pos[1])
-                self.tracks.append(Rectangle(pos=position, size=size))
-
-        with self.canvas:
+            self.tracks = [Rectangle() for i in range(self.num_sliders)]
             Color(0, 0, 1)
-            for i in range(self.num_sliders):
-                size = (self.size[0] / self.num_sliders, self.size[1] / 10)
-                position = (self.pos[0] + (size[0] * i), self.pos[1])
-                self.slides.append(Rectangle(pos=position, size=size))
+            self.slides = [Rectangle() for i in range(self.num_sliders)]
 
     def update_rect(self, *args):
         num = len(self.tracks)
@@ -43,7 +34,7 @@ class SampleSlider(Widget):
         num = len(self.slides)
         for i in range(num):
             size = (self.size[0] / self.num_sliders, self.size[1] / 10)
-            position = (self.pos[0] + (size[0] * i), self.pos[1])
+            position = (self.pos[0] + (size[0] * i), self.pos[1] + self.pos[1] / 2)
             self.slides[i].size = size
             self.slides[i].pos = position
 
@@ -51,7 +42,8 @@ class SampleSlider(Widget):
         print("Mouse moved to", touch.pos)
 
     def on_touch_down(self, touch):
-        print("Mouse click at", touch.pos)
+        slider_index = math.floor(touch.pos[0] / (self.width / self.num_sliders))
+        print("Mouse click at index", slider_index)
 
 
 class SamplerApp(App):
