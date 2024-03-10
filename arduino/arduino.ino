@@ -11,7 +11,7 @@ uint64_t count=0;
 uint64_t start_time=0;
 
 // Synth variables
-const float FREQ[4] = {1, 2, 3, 4};  // Slow frequencies for testing purposes
+const float FREQ[4] = {261.63 * 16, 293.66 * 16, 329.63 * 16, 349.23 * 16};
 const int BUZZER= A0;
 const int SAMPLES[16] = {255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0};
 int index = 0;
@@ -20,13 +20,10 @@ int gate = 1;
 // callback method used by timer
 void timer_callback(timer_callback_args_t __attribute((unused)) *p_args) {
   if (gate == 0) {
-    digitalWrite(LED_BUILTIN, index);
+    analogWrite(BUZZER, SAMPLES[index]);
   }
-  // analogWrite(BUZZER, SAMPLES[index]);
-  // index++;
-  // if (index == 16) {index = 0;}
-  if (index == 1) {index = 0;}
-  else {index = 1;}
+  index++;
+  if (index == 16) {index = 0;}
 }
 
 bool beginTimer(float rate) {
@@ -67,6 +64,9 @@ void setup() {
   //   pinMode(i, INPUT_PULLUP);
   // }
   pinMode(0, INPUT_PULLUP);
+  pinMode(1, INPUT_PULLUP);
+  pinMode(2, INPUT_PULLUP);
+  pinMode(3, INPUT_PULLUP);
   pinMode(BUZZER, OUTPUT);
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -86,13 +86,25 @@ void loop() {
   // }
   if (digitalRead(0) == 0) {
     if (gate) {
-      audio_timer.set_frequency(10);
+      audio_timer.set_frequency(FREQ[0]);
     }
     set = 0;
   }
   else if (digitalRead(1) == 0) {
     if (gate) {
-      audio_timer.set_frequency(5);
+      audio_timer.set_frequency(FREQ[1]);
+    }
+    set = 0;
+  }
+  else if (digitalRead(2) == 0) {
+    if (gate) {
+      audio_timer.set_frequency(FREQ[2]);
+    }
+    set = 0;
+  }
+  else if (digitalRead(3) == 0) {
+    if (gate) {
+      audio_timer.set_frequency(FREQ[3]);
     }
     set = 0;
   }
