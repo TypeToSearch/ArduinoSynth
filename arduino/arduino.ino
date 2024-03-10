@@ -11,8 +11,8 @@ uint64_t count=0;
 uint64_t start_time=0;
 
 // Synth variables
-const int BUTTON = 13;
-const int BUZZER = A0;
+const float FREQ[4] = {1, 2, 3, 4};  // Slow frequencies for testing purposes
+const int BUZZER= A0;
 const int SAMPLES[16] = {255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0};
 int index = 0;
 int gate = 1;
@@ -20,10 +20,13 @@ int gate = 1;
 // callback method used by timer
 void timer_callback(timer_callback_args_t __attribute((unused)) *p_args) {
   if (gate == 0) {
-    analogWrite(BUZZER, SAMPLES[index]);
-    index++;
-    if (index == 16) {index = 0;}
+    digitalWrite(LED_BUILTIN, index);
   }
+  // analogWrite(BUZZER, SAMPLES[index]);
+  // index++;
+  // if (index == 16) {index = 0;}
+  if (index == 1) {index = 0;}
+  else {index = 1;}
 }
 
 bool beginTimer(float rate) {
@@ -59,13 +62,40 @@ bool beginTimer(float rate) {
 void setup() {
   Serial.begin(115200);
 
-  pinMode(BUTTON, INPUT_PULLUP);
+  // Initialize digital pins 0 through 3 for buttons
+  // for (int i=0; i<4; i++) {
+  //   pinMode(i, INPUT_PULLUP);
+  // }
+  pinMode(0, INPUT_PULLUP);
   pinMode(BUZZER, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
 
-  beginTimer(6400);
+  // beginTimer(6400);
+  beginTimer(10);
 }
 
 void loop() {
-  gate = digitalRead(BUTTON);
+  int set = 1;
+  // for (int i=0; i<4; i++) {
+  //   if (digitalRead(i) == 0) {
+  //     if (gate == 1) {
+  //       audio_timer.set_frequency(FREQ[i]);
+  //     }
+  //     set = 0;
+  //   }
+  // }
+  if (digitalRead(0) == 0) {
+    if (gate) {
+      audio_timer.set_frequency(10);
+    }
+    set = 0;
+  }
+  else if (digitalRead(1) == 0) {
+    if (gate) {
+      audio_timer.set_frequency(5);
+    }
+    set = 0;
+  }
+  gate = set;
   delay(100);
 }
