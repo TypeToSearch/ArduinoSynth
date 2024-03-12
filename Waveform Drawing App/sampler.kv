@@ -1,12 +1,14 @@
 BoxLayout:
     orientation: 'vertical'
-    BoxLayout:
-        orientation: 'vertical'
-        SampleSlider:
-            num_sliders: 4
+    SampleSlider:
+        id: samples
+        num_sliders: 4
+        size: (400, 100)
     BoxLayout:
         orientation: 'horizontal'
+        size_hint: (1, 0.25)
         Button:
             text: 'Connect'
         Button:
             text: 'Send'
+            on_press: print(samples.get_values())

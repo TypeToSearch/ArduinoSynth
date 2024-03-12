@@ -52,6 +52,12 @@ class SampleSlider(Widget):
 
         self.slides[slider_index].size = (self.slides[slider_index].size[0], slider_height)
 
+    def get_values(self) -> list:
+        """Returns a list containing the values of every slider in this element. The size of the list is equal to the
+        num_sliders property. Each slider ranges from -150 to 150.
+        """
+        return [slider.size[1] for slider in self.slides]
+
 
 class SamplerApp(App):
     pass
