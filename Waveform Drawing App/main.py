@@ -39,15 +39,16 @@ class SampleSlider(Widget):
             self.slides[i].pos = position
 
     def on_touch_move(self, touch):
-        print("Mouse moved to", touch.pos)
+        print("Detected mouse move", touch.pos)
+        self.on_touch_down(touch)
 
     def on_touch_down(self, touch):
         # Get index of slider based on click position
         slider_index = math.floor(touch.pos[0] / (self.width / self.num_sliders))
         # Get height relative to the slides based on click position
         slider_height = math.floor(touch.pos[1] - (self.pos[1] + self.pos[1] / 2))
-        print("Mouse click at index", slider_index)
-        print("Mouse click at height", slider_height)
+        print("Mouse at index", slider_index)
+        print("Mouse at height", slider_height)
 
         self.slides[slider_index].size = (self.slides[slider_index].size[0], slider_height)
 
