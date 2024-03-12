@@ -34,7 +34,7 @@ class SampleSlider(Widget):
         num = len(self.slides)
         for i in range(num):
             size = (self.size[0] / self.num_sliders, self.size[1] / 10)
-            position = (self.pos[0] + (size[0] * i), self.pos[1] + self.pos[1] / 2)
+            position = (self.pos[0] + (size[0] * i), self.pos[1] + self.size[1] / 2)
             self.slides[i].size = size
             self.slides[i].pos = position
 
@@ -46,7 +46,7 @@ class SampleSlider(Widget):
         # Get index of slider based on click position
         slider_index = math.floor(touch.pos[0] / (self.width / self.num_sliders))
         # Get height relative to the slides based on click position
-        slider_height = math.floor(touch.pos[1] - (self.pos[1] + self.pos[1] / 2))
+        slider_height = math.floor(touch.pos[1] - (self.pos[1] + self.size[1] / 2))
         print("Mouse at index", slider_index)
         print("Mouse at height", slider_height)
 
@@ -54,7 +54,7 @@ class SampleSlider(Widget):
 
     def get_values(self) -> list:
         """Returns a list containing the values of every slider in this element. The size of the list is equal to the
-        num_sliders property. Each slider ranges from -150 to 150.
+        num_sliders property. Each slider's value ranges from -(self.size/2) to +(self.size/2).
         """
         return [slider.size[1] for slider in self.slides]
 
