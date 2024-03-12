@@ -49,6 +49,8 @@ class SampleSlider(Widget):
         print("Mouse click at index", slider_index)
         print("Mouse click at height", slider_height)
 
+        self.slides[slider_index].size = (self.slides[slider_index].size[0], slider_height)
+
 
 class SamplerApp(App):
     pass
