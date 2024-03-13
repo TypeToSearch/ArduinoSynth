@@ -12,6 +12,7 @@ class SampleSlider(Widget):
         super(SampleSlider, self).__init__(**kwargs)
         self.tracks = []
         self.slides = []
+        self.last_touch = (0, 0)
 
         self.bind(num_sliders=self.initialize_rects)
         self.bind(pos=self.update_rect, size=self.update_rect)
@@ -38,9 +39,23 @@ class SampleSlider(Widget):
             self.slides[i].size = size
             self.slides[i].pos = position
 
+    def to_local_index(self, x_pos):
+        return math.floor(x_pos / (self.width / self.num_sliders))
+
+    def to_local_height(self, y_pos):
+        return math.floor(y_pos - (self.pos[1] + self.size[1] / 2))
+
     def on_touch_move(self, touch):
         print("Detected mouse move", touch.pos)
-        self.on_touch_down(touch)
+        dist = self.to_local_index(self.last_touch[0]) - self.to_local_index(touch.pos[0])
+        if dist != 0:
+            slope = (touch.pos[1] - self.last_touch[1]) / dist
+        self.last_touch = touch.pos
+        for offset in range(dist):
+            position = {'pos': (touch.pos[1] * slope) / (offset + 1)}
+            touch.pos[0] += offset
+            touch.pos[1] = (touch.pos[1] * slope) / (offset + 1)
+            self.on_touch_down(position)
 
     def on_touch_down(self, touch):
         # Get index of slider based on click position
