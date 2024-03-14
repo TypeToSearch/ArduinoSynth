@@ -46,23 +46,25 @@ class SampleSlider(Widget):
         return math.floor(y_pos - (self.pos[1] + self.size[1] / 2))
 
     def on_touch_move(self, touch):
-        print("Detected mouse move", touch.pos)
+        """Implements linear interpolation to estimate position of sliders skipped because drag speed is too high"""
         ndx_dif = self.to_local_index((touch.pos[0])) - self.to_local_index(self.first_touch_pos[0])
-        print(ndx_dif)
-        # If index difference between touches has no gap, just set the size
+        # If no difference between current index and last index, just set the size
         if ndx_dif == 0:
             self.set_size(touch.pos)
             return
+
         slope = (touch.pos[1] - self.first_touch_pos[1]) / ndx_dif
-        direction = 1 if ndx_dif > 0 else -1
+        direction = 1 if ndx_dif > 0 else -1  # Need to determine drag direction for iteration in range function
         for i in range(0, ndx_dif, direction):
+            # Use linear interpolation to estimate skipped sliders
             x_pos = self.first_touch_pos[0] + (self.width / self.num_sliders) * i
             height = i * slope + self.first_touch_pos[1]
             self.set_size((x_pos, height))
+        # Update first_touch_pos to use the current position which now has no gaps before it
         self.first_touch_pos = touch.pos
 
     def on_touch_down(self, touch):
-        self.first_touch_pos = touch.pos
+        self.first_touch_pos = touch.pos  # Update first_touch_pos in case the user starts dragging
         self.set_size(touch.pos)
 
     def set_size(self, touch_pos: tuple):
