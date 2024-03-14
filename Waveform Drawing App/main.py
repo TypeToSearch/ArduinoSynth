@@ -54,7 +54,8 @@ class SampleSlider(Widget):
             self.set_size(touch.pos)
             return
         slope = (touch.pos[1] - self.first_touch_pos[1]) / ndx_dif
-        for i in range(ndx_dif):
+        direction = 1 if ndx_dif > 0 else -1
+        for i in range(0, ndx_dif, direction):
             x_pos = self.first_touch_pos[0] + (self.width / self.num_sliders) * i
             height = i * slope + self.first_touch_pos[1]
             self.set_size((x_pos, height))
