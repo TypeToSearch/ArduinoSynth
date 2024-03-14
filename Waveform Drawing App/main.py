@@ -12,7 +12,7 @@ class SampleSlider(Widget):
         super(SampleSlider, self).__init__(**kwargs)
         self.tracks = []
         self.slides = []
-        self.last_touch = (0, 0)
+        self.first_touch_pos = (0, 0)
 
         self.bind(num_sliders=self.initialize_rects)
         self.bind(pos=self.update_rect, size=self.update_rect)
@@ -47,9 +47,19 @@ class SampleSlider(Widget):
 
     def on_touch_move(self, touch):
         print("Detected mouse move", touch.pos)
-        self.on_touch_down(touch)
+        ndx_dif = self.to_local_index((touch.pos[0] - self.first_touch_pos[0]))
+        # If index difference between touches has no gap, just set the size
+        if ndx_dif < 2:
+            self.set_size(touch.pos)
+            return
+        slope = (touch.pos[1] - self.first_touch_pos[1]) / ndx_dif
+        for i in range(ndx_dif):
+            x_pos = self.first_touch_pos[0] + (self.width / self.num_sliders) * i
+            height = i * slope + self.first_touch_pos[1]
+            self.set_size((x_pos, height))
 
     def on_touch_down(self, touch):
+        self.first_touch_pos = touch.pos
         self.set_size(touch.pos)
 
     def set_size(self, touch_pos: tuple):
