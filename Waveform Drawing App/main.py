@@ -47,9 +47,10 @@ class SampleSlider(Widget):
 
     def on_touch_move(self, touch):
         print("Detected mouse move", touch.pos)
-        ndx_dif = self.to_local_index((touch.pos[0] - self.first_touch_pos[0]))
+        ndx_dif = self.to_local_index((touch.pos[0])) - self.to_local_index(self.first_touch_pos[0])
+        print(ndx_dif)
         # If index difference between touches has no gap, just set the size
-        if ndx_dif < 2:
+        if ndx_dif == 0:
             self.set_size(touch.pos)
             return
         slope = (touch.pos[1] - self.first_touch_pos[1]) / ndx_dif
@@ -57,6 +58,7 @@ class SampleSlider(Widget):
             x_pos = self.first_touch_pos[0] + (self.width / self.num_sliders) * i
             height = i * slope + self.first_touch_pos[1]
             self.set_size((x_pos, height))
+        self.first_touch_pos = touch.pos
 
     def on_touch_down(self, touch):
         self.first_touch_pos = touch.pos
