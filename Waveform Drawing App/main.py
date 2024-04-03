@@ -34,7 +34,7 @@ class SampleSlider(Widget):
 
         num = len(self.slides)
         for i in range(num):
-            size = (self.size[0] / self.num_sliders, self.size[1] / 10)
+            size = (self.size[0] / self.num_sliders, 0)
             position = (self.pos[0] + (size[0] * i), self.pos[1] + self.size[1] / 2)
             self.slides[i].size = size
             self.slides[i].pos = position
