@@ -77,9 +77,14 @@ class SampleSlider(Widget):
 
     def get_values(self) -> list:
         """Returns a list containing the values of every slider in this element. The size of the list is equal to the
-        num_sliders property. Each slider's value ranges from -(self.size/2) to +(self.size/2).
+        num_sliders property. Each slider's value ranges from -(self.height/2) to +(self.height/2).
         """
         return [slider.size[1] for slider in self.slides]
+
+    def get_scaled_values(self, max_magnitude=1.0) -> list:
+        """Returns a list containing the values of every slider in this element, scaled as specified."""
+        max_height = self.height / 2
+        return [slider.size[1] / max_height * max_magnitude for slider in self.slides]
 
 
 class SamplerApp(App):
