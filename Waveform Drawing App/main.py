@@ -74,9 +74,9 @@ class SampleSlider(Widget):
         slider_index = self.to_local_index(touch_pos[0])
         slider_height = self.to_local_height(touch_pos[1])
         if slider_height > self.height/2:
-            slider_height = self.height/2
+            slider_height = int(self.height/2)
         elif slider_height < -self.height/2:
-            slider_height = -self.height/2
+            slider_height = int(-self.height/2)
         self.slides[slider_index].size = (self.slides[slider_index].size[0], slider_height)
 
     def get_values(self) -> list:
