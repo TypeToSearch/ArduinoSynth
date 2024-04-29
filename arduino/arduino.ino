@@ -4,18 +4,27 @@ All other functions and code in this file were written by Ben Thomas for use in 
 */
 
 #include "FspTimer.h"
+#include <ArduinoBLE.h>
 
-// Timer varaibles
+// --Timer varaibles--
 FspTimer audio_timer;
 uint64_t count=0;
 uint64_t start_time=0;
 
-// Synth variables
+// --Synth variables--
 const float FREQ[4] = {261.63 * 16, 293.66 * 16, 329.63 * 16, 349.23 * 16};
 const int BUZZER= A0;
 const int SAMPLES[16] = {255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0};
 int index = 0;
 int gate = 1;
+
+// --BLE Variables--
+// Create service
+BLEService myService("2c3a85a4-d811-49bf-91db-200cefb3ee3e");
+// Create characteristic to transfer samples
+BLECharacteristic sampleCharacteristic("192b2f69-868c-4a3c-b3c0-23cc991dbe82", BLERead | BLEWrite, 0xFF, 16);
+// Advertising data (manufacturing data is set to the first 2 bytes of the UUID)
+const uint8_t completeRawAdvertisingData[] = {0x02,0x01,0x06,0x09,0xff,0x2c,0x3a,0x85,0xa4,0xd8,0x11,0x49,0xbf};
 
 // callback method used by timer
 void timer_callback(timer_callback_args_t __attribute((unused)) *p_args) {
@@ -59,6 +68,29 @@ bool beginTimer(float rate) {
 void setup() {
   Serial.begin(115200);
 
+  // --BLE Initialization--
+  if (!BLE.begin()) {
+    Serial.println("failed to initialize BLE!");
+    while (1);
+  }
+  // Advertising info
+  BLE.setLocalName("Arduino Synth");
+  BLE.setAdvertisedService(myService);
+
+  // Add characteristics to service
+  myService.addCharacteristic(sampleCharacteristic);
+
+  // Add service to BLE
+  BLE.addService(myService);
+
+  // Initialize characteristics
+  byte buffer[16] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+  sampleCharacteristic.writeValue(buffer, sizeof(buffer));
+
+  BLE.advertise();
+  Serial.println("advertising ...");
+
+  // -- Synth initialization--
   // Initialize digital pins 0 through 3 for buttons
   // for (int i=0; i<4; i++) {
   //   pinMode(i, INPUT_PULLUP);
@@ -75,6 +107,8 @@ void setup() {
 }
 
 void loop() {
+  BLE.poll();
+
   int set = 1;
   // for (int i=0; i<4; i++) {
   //   if (digitalRead(i) == 0) {
