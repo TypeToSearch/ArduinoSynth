@@ -1,8 +1,12 @@
 from kivy.app import App
 from kivy.app import Widget
+from kivy.uix.button import Button
 from kivy.graphics import *
 from kivy.properties import NumericProperty
+from kivy.properties import StringProperty
 import math
+import bleak
+import asyncio
 
 
 class SampleSlider(Widget):
@@ -89,6 +93,29 @@ class SampleSlider(Widget):
         """Returns a list containing the values of every slider in this element, scaled as specified."""
         max_height = self.height / 2
         return [slider.size[1] / max_height * max_magnitude for slider in self.slides]
+
+
+class ConnectButton(Button):
+    status = StringProperty("Not connected")
+
+    def button_pressed(self):
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(self.ble_communication())
+        loop.close()
+
+    async def ble_communication(self):
+        try:
+            print("Finding device")
+            device = await bleak.BleakScanner.find_device_by_address("F4:12:FA:9B:46:21")
+            print(device)
+
+            if device is not None:
+                self.status = f"Connected to {device.name} on address {device.address}"
+            else:
+                self.status = f"Unable to find device, not connected"
+
+        except bleak.exc.BleakError as e:
+            print(f"ERROR {e}")
 
 
 class SamplerApp(App):
