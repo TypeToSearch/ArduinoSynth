@@ -101,6 +101,13 @@ class SampleSlider(Widget):
         max_height = self.height / 2
         return [slider.size[1] / max_height * max_magnitude for slider in self.slides]
 
+    def get_hex_values(self):
+        values = [slider.size[1] + self.height/2 for slider in self.slides]
+        scaled = []
+        for value in values:
+            scaled.append(math.ceil((value / self.height) * 255))
+        return scaled
+
 
 class SamplerApp(App):
     status = StringProperty("Not connected")

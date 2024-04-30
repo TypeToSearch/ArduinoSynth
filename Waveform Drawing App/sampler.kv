@@ -12,7 +12,7 @@ BoxLayout:
             on_press: app.connect()
         Button:
             text: 'Send'
-            on_press: app.send(bytearray([0xfe, 0xae, 0x4f, 0x51]))
+            on_press: print(samples.get_hex_values())
     Label:
         text: app.status
         size_hint: (1, 0.1)
