@@ -13,7 +13,8 @@ uint64_t start_time=0;
 // --Synth variables--
 const float FREQ[4] = {261.63 * 16, 293.66 * 16, 329.63 * 16, 349.23 * 16};
 const int BUZZER= A0;
-byte SAMPLES[64];
+byte SAMPLES[64] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,};
 int index = 0;
 int gate = 1;
 
@@ -31,7 +32,7 @@ void timer_callback(timer_callback_args_t __attribute((unused)) *p_args) {
     analogWrite(BUZZER, SAMPLES[index]);
   }
   index++;
-  if (index == 16) {index = 0;}
+  if (index == 64) {index = 0;}
 }
 
 bool beginTimer(float rate) {
@@ -83,8 +84,7 @@ void setup() {
   BLE.addService(myService);
 
   // Initialize characteristics
-  byte buffer[64] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
-  sampleCharacteristic.writeValue(buffer, sizeof(buffer));
+  sampleCharacteristic.writeValue(SAMPLES, sizeof(SAMPLES));
 
   BLE.advertise();
   Serial.println("advertising ...");
@@ -107,14 +107,13 @@ void setup() {
 
 void loop() {
   BLE.poll();
-  byte buffer[64];
-  sampleCharacteristic.readValue(buffer, sizeof(buffer));
+  sampleCharacteristic.readValue(SAMPLES, sizeof(SAMPLES));
   
-  for (int i=0; i<64; i++) {
-    Serial.print(buffer[i], HEX);
-    Serial.print(" ");
-  }
-  Serial.println("");
+  // for (int i=0; i<64; i++) {
+  //   Serial.print(buffer[i], HEX);
+  //   Serial.print(" ");
+  // }
+  // Serial.println("");
 
   int set = 1;
   // for (int i=0; i<4; i++) {
