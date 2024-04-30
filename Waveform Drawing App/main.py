@@ -48,7 +48,10 @@ class SampleSlider(Widget):
             self.slides[i].pos = position
 
     def to_local_index(self, x_pos):
-        return math.floor(x_pos / (self.width / self.num_sliders))
+        idx = math.floor(x_pos / (self.width / self.num_sliders))
+        if idx > self.num_sliders - 1:
+            return self.num_sliders - 1
+        return idx
 
     def to_local_height(self, y_pos):
         return math.floor(y_pos - (self.pos[1] + self.size[1] / 2))
