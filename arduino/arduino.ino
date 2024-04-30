@@ -13,7 +13,7 @@ uint64_t start_time=0;
 // --Synth variables--
 const float FREQ[4] = {261.63 * 16, 293.66 * 16, 329.63 * 16, 349.23 * 16};
 const int BUZZER= A0;
-const int SAMPLES[16] = {255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0};
+byte SAMPLES[64];
 int index = 0;
 int gate = 1;
 
@@ -21,7 +21,7 @@ int gate = 1;
 // Create service
 BLEService myService("2c3a85a4-d811-49bf-91db-200cefb3ee3e");
 // Create characteristic to transfer samples
-BLECharacteristic sampleCharacteristic("192b2f69-868c-4a3c-b3c0-23cc991dbe82", BLERead | BLEWrite, 0xFF, 16);
+BLECharacteristic sampleCharacteristic("192b2f69-868c-4a3c-b3c0-23cc991dbe82", BLERead | BLEWrite, 0xFF);
 // Advertising data (manufacturing data is set to the first 2 bytes of the UUID)
 const uint8_t completeRawAdvertisingData[] = {0x02,0x01,0x06,0x09,0xff,0x2c,0x3a,0x85,0xa4,0xd8,0x11,0x49,0xbf};
 
@@ -83,7 +83,7 @@ void setup() {
   BLE.addService(myService);
 
   // Initialize characteristics
-  byte buffer[16] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+  byte buffer[64] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
   sampleCharacteristic.writeValue(buffer, sizeof(buffer));
 
   BLE.advertise();
@@ -107,10 +107,10 @@ void setup() {
 
 void loop() {
   BLE.poll();
-  byte buffer[16];
+  byte buffer[64];
   sampleCharacteristic.readValue(buffer, sizeof(buffer));
   
-  for (int i=0; i<16; i++) {
+  for (int i=0; i<64; i++) {
     Serial.print(buffer[i], HEX);
     Serial.print(" ");
   }

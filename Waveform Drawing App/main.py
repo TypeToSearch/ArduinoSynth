@@ -140,10 +140,6 @@ class SamplerApp(App):
 
             self.status = f"Failed to connect to device. Not connected."
 
-            # for service in self.client.services:
-            #     for characteristic in service.characteristics:
-            #         print(f"Characteristic: {characteristic.uuid}")
-
         except bleak.exc.BleakDeviceNotFoundError:
             self.status = f"Failed to find device. Not connected."
         except bleak.exc.BleakError as e:
