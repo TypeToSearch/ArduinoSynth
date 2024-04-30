@@ -7,6 +7,14 @@ from kivy.properties import StringProperty
 import math
 import bleak
 import asyncio
+import uuid
+from bleak.backends.service import BleakGATTService
+from bleak import BLEDevice
+from bleak import BleakClient
+import trio
+
+ADDRESS = "F4:12:FA:9B:46:21"
+SAMPLE_CHAR = "192b2f69-868c-4a3c-b3c0-23cc991dbe82"
 
 
 class SampleSlider(Widget):
@@ -95,32 +103,53 @@ class SampleSlider(Widget):
         return [slider.size[1] / max_height * max_magnitude for slider in self.slides]
 
 
-class ConnectButton(Button):
-    status = StringProperty("Not connected")
+class SendButton(Button):
+    status = StringProperty("Idle")
 
-    def button_pressed(self):
-        loop = asyncio.new_event_loop()
-        loop.run_until_complete(self.ble_communication())
-        loop.close()
+    def send_pressed(self):
+        asyncio.run(self.ble_send())
 
-    async def ble_communication(self):
+    async def ble_send(self):
         try:
             print("Finding device")
-            device = await bleak.BleakScanner.find_device_by_address("F4:12:FA:9B:46:21")
-            print(device)
-
-            if device is not None:
-                self.status = f"Connected to {device.name} on address {device.address}"
-            else:
-                self.status = f"Unable to find device, not connected"
+            async with BleakClient(ADDRESS, winrt=dict(use_cached_services=False)) as client:
+                print("yep")
+                if client.is_connected:
+                    self.status = f"Connected on address"
+                else:
+                    self.status = "Failed to connect, not connected"
 
         except bleak.exc.BleakError as e:
             print(f"ERROR {e}")
 
 
 class SamplerApp(App):
-    pass
+    status = StringProperty("Idle")
+
+    def __init__(self):
+        super().__init__()
+        self.running = True
+
+    def on_stop(self):
+        self.running = False
+        asyncio.get_running_loop().close()
+
+    async def ble(self):
+        while self.running:
+            try:
+                print("Finding device")
+                async with BleakClient(ADDRESS, winrt=dict(use_cached_services=False)) as client:
+                    for service in client.services:
+                        for characteristic in service.characteristics:
+                            print(f"Characteristic: {characteristic.uuid}")
+
+            except bleak.exc.BleakError as e:
+                print(f"ERROR {e}")
+
+
+async def main(app):
+    await asyncio.gather(app.async_run("asyncio"), app.ble())
 
 
 kv = SamplerApp()
-kv.run()
+asyncio.run(main(kv))

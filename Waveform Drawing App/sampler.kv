@@ -4,15 +4,11 @@ BoxLayout:
         id: samples
         num_sliders: 16
         size: (400, 100)
-    BoxLayout:
-        orientation: 'horizontal'
+    SendButton:
+        id: send
         size_hint: (1, 0.25)
-        ConnectButton:
-            id: connect
-            text: 'Connect'
-            on_press: self.button_pressed()
-        Button:
-            text: 'Send'
+        text: 'Send'
+        on_press: self.send_pressed()
     Label:
-        text: connect.status
+        text: send.status
         size_hint: (1, 0.1)
