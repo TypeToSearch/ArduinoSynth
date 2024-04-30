@@ -1,18 +1,14 @@
 from kivy.app import App
 from kivy.app import Widget
-from kivy.uix.button import Button
 from kivy.graphics import *
 from kivy.properties import NumericProperty
 from kivy.properties import StringProperty
 import math
 import bleak
 import asyncio
-import uuid
-from bleak.backends.service import BleakGATTService
-from bleak import BLEDevice
 from bleak import BleakClient
-import trio
 
+# Constants for BLE
 ADDRESS = "F4:12:FA:9B:46:21"
 SAMPLE_CHAR = "192b2f69-868c-4a3c-b3c0-23cc991dbe82"
 
@@ -103,26 +99,6 @@ class SampleSlider(Widget):
         return [slider.size[1] / max_height * max_magnitude for slider in self.slides]
 
 
-class SendButton(Button):
-    status = StringProperty("Idle")
-
-    def send_pressed(self):
-        asyncio.run(self.ble_send())
-
-    async def ble_send(self):
-        try:
-            print("Finding device")
-            async with BleakClient(ADDRESS, winrt=dict(use_cached_services=False)) as client:
-                print("yep")
-                if client.is_connected:
-                    self.status = f"Connected on address"
-                else:
-                    self.status = "Failed to connect, not connected"
-
-        except bleak.exc.BleakError as e:
-            print(f"ERROR {e}")
-
-
 class SamplerApp(App):
     status = StringProperty("Idle")
 
@@ -140,16 +116,31 @@ class SamplerApp(App):
             await self.client.__aexit__(None, None, None)
             return
 
-        try:
-            print("Finding device")
-            self.client = BleakClient(ADDRESS, winrt=dict(use_cached_services=False))
-            await self.client.__aenter__()
-            for service in self.client.services:
-                for characteristic in service.characteristics:
-                    print(f"Characteristic: {characteristic.uuid}")
+        attempt = 1
+        while self.running:
+            try:
+                self.status = "Connecting to device..."
+                self.client = BleakClient(ADDRESS, winrt=dict(use_cached_services=False), timeout=5)
+                await self.client.__aenter__()
 
-        except bleak.exc.BleakError as e:
-            print(f"ERROR {e}")
+                if self.client.is_connected:
+                    self.status = f"Connected on address {self.client.address}"
+                    return
+
+                self.status = f"Failed to connect to device. Retrying... ({attempt})"
+                attempt += 1
+
+                # for service in self.client.services:
+                #     for characteristic in service.characteristics:
+                #         print(f"Characteristic: {characteristic.uuid}")
+
+            except bleak.exc.BleakDeviceNotFoundError:
+                self.status = f"Failed to find device. Retrying... ({attempt})"
+                attempt += 1
+                await asyncio.sleep(2)
+            except bleak.exc.BleakError as e:
+                print(f"ERROR {e}")
+                return
 
 
 async def main(app):

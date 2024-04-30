@@ -4,11 +4,10 @@ BoxLayout:
         id: samples
         num_sliders: 16
         size: (400, 100)
-    SendButton:
-        id: send
+    Button:
         size_hint: (1, 0.25)
         text: 'Send'
-        on_press: self.send_pressed()
+        on_press: app.send()
     Label:
-        text: send.status
+        text: app.status
         size_hint: (1, 0.1)
