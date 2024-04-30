@@ -1,6 +1,5 @@
 /*
 The code for the beginTimer() function was written by Phil Schatzmann and can be found at the following link: https://www.pschatzmann.ch/home/2023/07/01/under-the-hood-arduino-uno-r4-timers/
-All other functions and code in this file were written by Ben Thomas for use in this project, and are licensed under the MIT licesnse included with this git repository.
 */
 
 #include "FspTimer.h"
@@ -108,6 +107,14 @@ void setup() {
 
 void loop() {
   BLE.poll();
+  byte buffer[16];
+  sampleCharacteristic.readValue(buffer, sizeof(buffer));
+  
+  for (int i=0; i<16; i++) {
+    Serial.print(buffer[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println("");
 
   int set = 1;
   // for (int i=0; i<4; i++) {

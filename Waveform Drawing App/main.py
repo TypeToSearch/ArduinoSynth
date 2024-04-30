@@ -138,6 +138,9 @@ class SamplerApp(App):
             self.status = f"Failed to find device. Not connected."
         except bleak.exc.BleakError as e:
             print(f"ERROR {e}")
+        except Exception as e:
+            self.status = f"Unexpected error: {e}"
+            print(f"ERROR {e}")
 
     def send(self, data: bytearray):
         asyncio.get_running_loop().create_task(self.ble_send(data))
