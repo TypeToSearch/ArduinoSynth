@@ -129,22 +129,27 @@ class SamplerApp(App):
     def __init__(self):
         super().__init__()
         self.running = True
+        self. client = None
 
     def on_stop(self):
         self.running = False
-        asyncio.get_running_loop().close()
+        asyncio.get_running_loop().create_task(self.ble())
 
     async def ble(self):
-        while self.running:
-            try:
-                print("Finding device")
-                async with BleakClient(ADDRESS, winrt=dict(use_cached_services=False)) as client:
-                    for service in client.services:
-                        for characteristic in service.characteristics:
-                            print(f"Characteristic: {characteristic.uuid}")
+        if not self.running:
+            await self.client.__aexit__(None, None, None)
+            return
 
-            except bleak.exc.BleakError as e:
-                print(f"ERROR {e}")
+        try:
+            print("Finding device")
+            self.client = BleakClient(ADDRESS, winrt=dict(use_cached_services=False))
+            await self.client.__aenter__()
+            for service in self.client.services:
+                for characteristic in service.characteristics:
+                    print(f"Characteristic: {characteristic.uuid}")
+
+        except bleak.exc.BleakError as e:
+            print(f"ERROR {e}")
 
 
 async def main(app):
