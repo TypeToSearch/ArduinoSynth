@@ -2,7 +2,7 @@ BoxLayout:
     orientation: 'vertical'
     SampleSlider:
         id: samples
-        num_sliders: 32
+        num_sliders: 16
         size: (400, 100)
     BoxLayout:
         orientation: 'horizontal'
@@ -12,7 +12,7 @@ BoxLayout:
             on_press: app.connect()
         Button:
             text: 'Send'
-            on_press: print(samples.get_hex_values())
+            on_press: app.send(samples.get_hex_values())
     Label:
         text: app.status
         size_hint: (1, 0.1)

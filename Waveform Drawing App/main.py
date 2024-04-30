@@ -106,7 +106,7 @@ class SampleSlider(Widget):
         scaled = []
         for value in values:
             scaled.append(math.ceil((value / self.height) * 255))
-        return scaled
+        return bytearray(scaled)
 
 
 class SamplerApp(App):
