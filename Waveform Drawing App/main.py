@@ -100,51 +100,61 @@ class SampleSlider(Widget):
 
 
 class SamplerApp(App):
-    status = StringProperty("Idle")
+    status = StringProperty("Not connected")
 
     def __init__(self):
         super().__init__()
         self.running = True
-        self. client = None
+        self.client = BleakClient(ADDRESS, winrt=dict(use_cached_services=False), timeout=5)
 
     def on_stop(self):
         self.running = False
-        asyncio.get_running_loop().create_task(self.ble())
+        asyncio.get_running_loop().create_task(self.ble_connect())
 
-    async def ble(self):
+    def connect(self):
+        asyncio.get_running_loop().create_task(self.ble_connect())
+
+    async def ble_connect(self):
         if not self.running:
             await self.client.__aexit__(None, None, None)
             return
 
-        attempt = 1
-        while self.running:
-            try:
-                self.status = "Connecting to device..."
-                self.client = BleakClient(ADDRESS, winrt=dict(use_cached_services=False), timeout=5)
-                await self.client.__aenter__()
+        try:
+            self.status = "Connecting to device..."
+            self.client = BleakClient(ADDRESS, winrt=dict(use_cached_services=False), timeout=5)
+            await self.client.__aenter__()
 
-                if self.client.is_connected:
-                    self.status = f"Connected on address {self.client.address}"
-                    return
-
-                self.status = f"Failed to connect to device. Retrying... ({attempt})"
-                attempt += 1
-
-                # for service in self.client.services:
-                #     for characteristic in service.characteristics:
-                #         print(f"Characteristic: {characteristic.uuid}")
-
-            except bleak.exc.BleakDeviceNotFoundError:
-                self.status = f"Failed to find device. Retrying... ({attempt})"
-                attempt += 1
-                await asyncio.sleep(2)
-            except bleak.exc.BleakError as e:
-                print(f"ERROR {e}")
+            if self.client.is_connected:
+                self.status = f"Connected on address {self.client.address}"
                 return
+
+            self.status = f"Failed to connect to device. Not connected."
+
+            # for service in self.client.services:
+            #     for characteristic in service.characteristics:
+            #         print(f"Characteristic: {characteristic.uuid}")
+
+        except bleak.exc.BleakDeviceNotFoundError:
+            self.status = f"Failed to find device. Not connected."
+        except bleak.exc.BleakError as e:
+            print(f"ERROR {e}")
+
+    def send(self, data: bytearray):
+        asyncio.get_running_loop().create_task(self.ble_send(data))
+
+    async def ble_send(self, data: bytearray):
+        try:
+            if not self.client.is_connected:
+                self.status = "Connection lost. Not connected."
+
+            await self.client.write_gatt_char(SAMPLE_CHAR, data, response=True)
+
+        except bleak.exc.BleakError as e:
+            print(f"ERROR {e}")
 
 
 async def main(app):
-    await asyncio.gather(app.async_run("asyncio"), app.ble())
+    await asyncio.gather(app.async_run("asyncio"), app.ble_connect())
 
 
 kv = SamplerApp()
