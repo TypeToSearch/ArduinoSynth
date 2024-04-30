@@ -7,7 +7,6 @@ name = "pypi"
 kivy = "*"
 bleak = "*"
 pillow = "*"
-trio = "*"
 
 [dev-packages]
 
