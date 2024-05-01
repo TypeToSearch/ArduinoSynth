@@ -11,10 +11,11 @@ uint64_t count=0;
 uint64_t start_time=0;
 
 // --Synth variables--
-const float FREQ[4] = {261.63 * 16, 293.66 * 16, 329.63 * 16, 349.23 * 16};
+const float FREQ[12] = {261.63 * 64, 277.18 * 64, 293.66 * 64, 311.13 * 64, 329.63 * 64, 349.23 * 64,
+                        369.99 * 64, 392 * 64, 415.3 * 64, 440 * 64, 466.16 * 64, 493.88 * 64};
 const int BUZZER= A0;
 byte SAMPLES[64] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,};
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 int index = 0;
 int gate = 1;
 
@@ -90,16 +91,12 @@ void setup() {
   Serial.println("advertising ...");
 
   // -- Synth initialization--
-  // Initialize digital pins 0 through 3 for buttons
-  // for (int i=0; i<4; i++) {
-  //   pinMode(i, INPUT_PULLUP);
-  // }
-  pinMode(0, INPUT_PULLUP);
-  pinMode(1, INPUT_PULLUP);
-  pinMode(2, INPUT_PULLUP);
-  pinMode(3, INPUT_PULLUP);
+  //Initialize digital pins 0 through 12 for buttons
+  for (int i=0; i<12; i++) {
+    pinMode(i, INPUT_PULLUP);
+  }
+
   pinMode(BUZZER, OUTPUT);
-  pinMode(LED_BUILTIN, OUTPUT);
 
   // beginTimer(6400);
   beginTimer(10);
@@ -116,37 +113,13 @@ void loop() {
   // Serial.println("");
 
   int set = 1;
-  // for (int i=0; i<4; i++) {
-  //   if (digitalRead(i) == 0) {
-  //     if (gate == 1) {
-  //       audio_timer.set_frequency(FREQ[i]);
-  //     }
-  //     set = 0;
-  //   }
-  // }
-  if (digitalRead(0) == 0) {
-    if (gate) {
-      audio_timer.set_frequency(FREQ[0]);
+  for (int i=0; i<12; i++) {
+    if (digitalRead(i) == 0) {
+      if (gate) {
+        audio_timer.set_frequency(FREQ[i]);
+      }
+      set = 0;
     }
-    set = 0;
-  }
-  else if (digitalRead(1) == 0) {
-    if (gate) {
-      audio_timer.set_frequency(FREQ[1]);
-    }
-    set = 0;
-  }
-  else if (digitalRead(2) == 0) {
-    if (gate) {
-      audio_timer.set_frequency(FREQ[2]);
-    }
-    set = 0;
-  }
-  else if (digitalRead(3) == 0) {
-    if (gate) {
-      audio_timer.set_frequency(FREQ[3]);
-    }
-    set = 0;
   }
   gate = set;
   delay(100);
